@@ -3,17 +3,14 @@
 #include<stdlib.h>
 #include<ctype.h>
 
-int main()
+char * inputType(char *input)
 {
-	char *input, *type;
+	char *type;
 	int digits, letters, decimals, str_len, i;
 	digits = 0;
 	letters = 0;
 	decimals = 0;
 
-	printf("Enter a number, fraction, or character\n");
-
-	scanf("%s",input);
 
 	str_len = strlen(input);
 
@@ -44,7 +41,20 @@ int main()
 	} else {
 		type = "string";
 	}
+
+	return type;
+}
+
+int main()
+{
+	char *input, *type;
 	
+	printf("Enter a number, fraction, or character\n");
+
+	scanf("%s",input);
+
+	type = inputType(input);
+
 	printf("You've entered a(n): %s", type);
 	printf("\n");
 	
