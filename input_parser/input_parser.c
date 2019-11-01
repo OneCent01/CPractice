@@ -5,7 +5,7 @@
 
 int main()
 {
-	char *input;
+	char *input, *type;
 	int digits, letters, decimals, str_len, i;
 	digits = 0;
 	letters = 0;
@@ -14,9 +14,6 @@ int main()
 	printf("Enter a number, fraction, or character\n");
 
 	scanf("%s",input);
-
-	printf("You entered: %s", input);
-	printf("\n");
 
 	str_len = strlen(input);
 
@@ -36,17 +33,16 @@ int main()
 	printf("Letters: %i", letters);
 	printf("\n");
 
-	if(decimals > 1) {
-		printf("You've entered a complex string some decimals...");
-	} else if(letters == 0 && decimals == 1 && digits > 0) {
-		printf("You've entered a decimal!");
+	if(letters == 0 && decimals == 1 && digits > 0) {
+		type = "decimal";
 	} else if(letters == 0 && digits == 1) {
-		printf("You've entered a digit");
-	} else if(letters == 0 && digits > 1) {
-		printf("You've entered an integer!");
+		type = "digit";
+	} else if(letters == 0 && digits > 1 && decimals == 0) {
+		type = "integer";
 	} else {
-		printf("You've entered an complex string!");
+		type = "string";
 	}
+	printf("You've entered a(n): %s", type);
 	printf("\n");
 	
 	return 0;
