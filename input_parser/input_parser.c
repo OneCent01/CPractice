@@ -35,7 +35,7 @@ int main()
 
 	if(letters == 0 && decimals == 1 && digits > 0) {
 		type = "decimal";
-	} else if(letters == 0 && digits == 1) {
+	} else if(letters == 0 && digits == 1 && decimals == 0) {
 		type = "digit";
 	} else if(letters == 0 && digits > 1 && decimals == 0) {
 		type = "integer";
