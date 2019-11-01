@@ -33,7 +33,9 @@ int main()
 	printf("Letters: %i", letters);
 	printf("\n");
 
-	if(letters == 0 && decimals == 1 && digits > 0) {
+	if(letters == 0 && decimals == 0 && digits == 0) {
+		type = "null";
+	} else if(letters == 0 && decimals == 1 && digits > 0) {
 		type = "decimal";
 	} else if(letters == 0 && digits == 1 && decimals == 0) {
 		type = "digit";
@@ -42,6 +44,7 @@ int main()
 	} else {
 		type = "string";
 	}
+	
 	printf("You've entered a(n): %s", type);
 	printf("\n");
 	
