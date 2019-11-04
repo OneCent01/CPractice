@@ -51,45 +51,6 @@ int char_arr_includes(char *array, char value)
 	return included;
 }
 
-void print_char_arr(char * array, int length)
-{
-	printf("[");
-	for(int i = 0; i < strlen(array) || i < length; i++) {
-	    printf("%d", array[i]);
-	    if(i < length - 1) {
-	    	printf(", ");
-	    }
-	} 
-	printf("]");
-	printf("\n");
-}
-
-void print_int_arr(int * array, int length)
-{
-	printf("[");
-	for(int i = 0; i < length; i++) {
-	    printf("%d", array[i]);
-	    if(i < length - 1) {
-	    	printf(", ");
-	    }
-	} 
-	printf("]");
-	printf("\n");
-}
-
-void print_double_arr(double * array, int length)
-{
-	printf("[");
-	for(int i = 0; i < length; i++) {
-	    printf("%f", array[i]);
-	    if(i < length - 1) {
-	    	printf(", ");
-	    }
-	} 
-	printf("]");
-	printf("\n");
-}
-
 char * substring(char *string, int start, int end)
 {
 	int i, range;
@@ -100,34 +61,6 @@ char * substring(char *string, int start, int end)
 		result[i - start] = string[i];
 	}
 	result[range] = '\0';
-	return result;
-}
-
-double add(base, val)
-{
-	double result;
-	result = base + val;
-	return result;
-}
-
-double subtract(base, val)
-{
-	double result;
-	result = base - val;
-	return result;
-}
-
-double divide(base, val)
-{
-	double result;
-	result = base / val;
-	return result;
-}
-
-double multiply(base, val)
-{
-	double result;
-	result = base * val;
 	return result;
 }
 
@@ -157,7 +90,7 @@ double calculator(char *expression)
 	// this is necessary to intialize the operation_indices at the correct size
 	// if I didn't do this, I would have to allocate a set amount of space
 	// for the array, which would result in the algorithm failing if there
-	// are more operands than size of operations indices array.
+	// are more operands than the allocated memory.
 	for(i = 0; i < strlen(expression); i++) {
 		is_valid_operator = char_arr_includes(valid_operators, expression[i]);
 		if(is_valid_operator == 1) {
@@ -175,8 +108,6 @@ double calculator(char *expression)
 			operation_count++;
 		} 
 	}
-
-	// print_int_arr(operation_indices, operation_count);
 
 	numbers = malloc(sizeof(double) * (operation_count+1));
 	operations = malloc(sizeof(char) * operation_count);
@@ -360,6 +291,8 @@ int main()
 	}
 
 	free(stripped_input);
+
+	printf("Result: %f", result)
 
 	return 0;
 }
