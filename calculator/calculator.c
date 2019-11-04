@@ -292,7 +292,8 @@ int main()
 
 	free(stripped_input);
 
-	printf("Result: %f", result)
+	printf("Result: %f", result);
+	printf("\n");
 
 	return 0;
 }
