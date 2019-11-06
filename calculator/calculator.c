@@ -16,39 +16,6 @@ void print_double_arr(double * array, int length)
 	printf("\n");
 }
 
-char *input_type(char input)
-{
-	char *type;
-	int digits, letters, decimals;
-	digits = 0;
-	letters = 0;
-	decimals = 0;
-
-	if(input == '.') {
-		decimals++;
-	} else if(isalpha(input) != 0) {
-		letters++;
-	} else if(isdigit(input) != 0) {
-		digits++;
-	};
-
-	if(letters == 0 && decimals == 0 && digits == 0) {
-		type = "null";
-	} else if(letters == 0 && decimals == 1 && digits > 0) {
-		type = "float";
-	} else if(letters == 0 && digits == 1 && decimals == 0) {
-		type = "digit";
-	} else if(letters == 0 && digits > 1 && decimals == 0) {
-		type = "int";
-	} else if(letters == 1 && digits == 0 && decimals == 0) {
-		type = "char";
-	} else {
-		type = "str";
-	}
-
-	return type;
-}
-
 int char_arr_includes(char *array, char value)
 {
 	int included, i;
