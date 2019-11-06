@@ -36,3 +36,59 @@ void print_double_arr(double * array, int length)
 	printf("]");
 	printf("\n");
 }
+
+// The most interoperable and safe way to convert an
+// integer into a string is by using the formatting
+// utilities utilized by the C's native print module.
+char * int_to_string_safe(integer)
+{
+	char *formatted;
+
+	formatted = malloc(sizeof(int) * 10);
+
+	int format = snprintf(
+		formatted,
+		10,
+		"%d",
+		integer
+	);
+
+	return formatted;
+}
+
+// inserts the insert string into the base, returing a new string
+// with a length of the base and insertion length combined
+char *char_array_insert(char *base, char *insertion, int at)
+{
+	char *result, next_result;
+	int i, final_length;
+
+	final_length = strlen(base) + strlen(insertion);
+	result = malloc(sizeof(char) * final_length+1);
+
+	for(i = 0; i < final_length; i++) {
+		if(i < at) {
+			next_result = base[i];
+		} else if(i < (at + strlen(insertion))) {
+
+			next_result = insertion[i - at];
+		} else {
+			next_result = base[i - strlen(insertion)];
+		}
+		result[i] = next_result;
+	}
+
+	return result;
+}
+
+// overwrites the values in a character array with a given string
+// starts at the indicated location. Returns a the modified base
+// string without changing it's size. 
+char *assign_char_value(char *base, int index, char *value) 
+{
+	int i;
+	for(i = 0; i < strlen(value); i++) {
+		base[index+i] = value[i];
+	}
+	return base;
+}
