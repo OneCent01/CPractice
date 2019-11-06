@@ -65,7 +65,7 @@ double calculator(char *expression, double *evaluated)
 
 	numbers = malloc(sizeof(double) * (operation_count+1));
 	operations = malloc(sizeof(char) * operation_count);
-	// // create the operations array from the operation_indices array:
+	// create the operations array from the operation_indices array:
 	for(i = 0; i <= operation_count; i++) {
 		// for each iteration, I want to do two things: 
 		// a) append the operation onto the operations array
@@ -76,8 +76,8 @@ double calculator(char *expression, double *evaluated)
 			substring_end = strlen(expression);
 		}
 
-		// // b) append the number to the left of the operation into the numbers array
-		// // slice out the string:
+		// b) append the number to the left of the operation into the numbers array
+		// slice out the string:
 
 		if(i == 0) {
 			substring_start = 0;
@@ -389,7 +389,7 @@ int main()
 		printf("\n");
 	} else {
 		printf("INVALID EXPRESSION ENTERED\n");
-		printf("Input must only consist of digits and mathmatical operations [^, *, /, +, -]\n");
+		printf("Input must only consist of numbers, parentheses, and mathmatical operations: (^, *, /, +, -)\n");
 	}
 
 	free(stripped_input);
