@@ -3,19 +3,6 @@
 #include<ctype.h>
 #include<stdio.h>
 
-void print_double_arr(double * array, int length)
-{
-	printf("[");
-	for(int i = 0; i < length; i++) {
-	    printf("%f", array[i]);
-	    if(i < length - 1) {
-	    	printf(", ");
-	    }
-	} 
-	printf("]");
-	printf("\n");
-}
-
 int char_arr_includes(char *array, char value)
 {
 	int included, i;
