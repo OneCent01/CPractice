@@ -147,63 +147,22 @@ double calculator(char *expression)
 	
 	for(i = 0; i < operation_count; i++) {
 		next_value_offset = 0;
+		while(consumed_indices[i+1+next_value_offset] == 1) {
+			next_value_offset++;
+		}
+		result_index = i+1+next_value_offset;
 		if(operations[i] ==  '^') {
-			while(consumed_indices[i+1+next_value_offset] == 1) {
-				next_value_offset++;
-			}
-
-			numbers[i+1+next_value_offset] = exponentiate(numbers[i], numbers[i+1+next_value_offset]);
-			result_index = i+1+next_value_offset;
-			consumed_indices[i] = 1;
+			numbers[result_index] = exponentiate(numbers[i], numbers[result_index]);
+		} else if(operations[i] ==  '*') {
+			numbers[result_index] = numbers[i] * numbers[result_index];
+		} else if(operations[i] ==  '/') {
+			numbers[result_index] = numbers[i] / numbers[result_index];
+		} else if(operations[i] == '+') {
+			numbers[result_index] = numbers[i] + numbers[result_index];
+		} else if(operations[i] == '-') {
+			numbers[result_index] = numbers[i] - numbers[result_index];
 		}
-	}
-
-	for(i = 0; i < operation_count; i++) {
-		next_value_offset = 0;
-		if(operations[i] ==  '*') {
-			while(consumed_indices[i+1+next_value_offset] == 1) {
-				next_value_offset++;
-			}
-			numbers[i+1+next_value_offset] = numbers[i] * numbers[i+1+next_value_offset];
-			result_index = i+1+next_value_offset;
-			consumed_indices[i] = 1;
-		}
-	}
-
-	for(i = 0; i < operation_count; i++) {
-		next_value_offset = 0;
-		if(operations[i] ==  '/') {
-			while(consumed_indices[i+1+next_value_offset] == 1) {
-				next_value_offset++;
-			}
-			numbers[i+1+next_value_offset] = numbers[i] / numbers[i+1+next_value_offset];
-			result_index = i+1+next_value_offset;
-			consumed_indices[i] = 1;
-		}
-	}
-
-	for(i = 0; i < operation_count; i++) {
-		next_value_offset = 0;
-		if(operations[i] == '+') {
-			while(consumed_indices[i+1+next_value_offset] == 1) {
-				next_value_offset++;
-			}
-			numbers[i+1+next_value_offset] = numbers[i] + numbers[i+1+next_value_offset];
-			consumed_indices[i] = 1;
-			result_index = i+1+next_value_offset;
-		}
-	}
-
-	for(i = 0; i < operation_count; i++) {
-		next_value_offset = 0;
-		if(operations[i] == '-') {
-			while(consumed_indices[i+1+next_value_offset] == 1) {
-				next_value_offset++;
-			}
-			numbers[i+1+next_value_offset] = numbers[i] - numbers[i+1+next_value_offset];
-			consumed_indices[i] = 1; 
-			result_index = i+1+next_value_offset;
-		}
+		consumed_indices[i] = 1; 
 	}
 
 	result = numbers[result_index];
@@ -217,7 +176,7 @@ double calculator(char *expression)
 	return result;
 }
 
-char *whitespace_strip(char * string) 
+char *whitespace_strip(char *string) 
 {
 	char *stripped;
 	int i, stripped_count, whitespace_count, input_len;
@@ -268,7 +227,157 @@ int is_valid_expression(char *string)
 	return is_valid;
 }
 
-// CURRENTLY LACKS SUPPORT OF RECURSIVELY NESTED OPERATIONS
+void print_int_arr(int * array, int length)
+{
+	printf("[");
+	for(int i = 0; i < length; i++) {
+	    printf("%d", array[i]);
+	    if(i < length - 1) {
+	    	printf(", ");
+	    }
+	} 
+	printf("]");
+	printf("\n");
+}
+
+void print_double_arr(double * array, int length)
+{
+	printf("[");
+	for(int i = 0; i < length; i++) {
+	    printf("%f", array[i]);
+	    if(i < length - 1) {
+	    	printf(", ");
+	    }
+	} 
+	printf("]");
+	printf("\n");
+}
+
+
+int *flat_expressions(char *expression)
+{
+	int *flat_expression_indices, i, opening_index, closing_index, count;
+	opening_index = 0;
+
+	flat_expression_indices = NULL;
+	count = 0;
+
+	for(i = 0; i < strlen(expression); i++) {
+		if(expression[i] == '(') {
+			opening_index = i;
+		} else if(expression[i] == ')' && opening_index != -1) {
+			closing_index = i;
+
+			flat_expression_indices = realloc(flat_expression_indices, sizeof(int) * (count+1) * 2);
+
+			flat_expression_indices[count * 2] = opening_index;
+			flat_expression_indices[count * 2 + 1] = closing_index;
+
+
+			closing_index = -1;
+			opening_index = -1;
+			count++;
+		}
+	}
+
+
+
+	if(flat_expression_indices == NULL) {
+		flat_expression_indices = realloc(flat_expression_indices, sizeof(int) * 2);
+
+		flat_expression_indices[0] = 0;
+		flat_expression_indices[1] = strlen(expression);
+	}
+
+
+	return flat_expression_indices;
+}
+
+char *assign_char_value(char *base, int index, char *value) 
+{
+	int i;
+	for(i = 0; i < strlen(value); i++) {
+		base[index+i] = value[i];
+	}
+	return base;
+}
+
+double recursive_calculator(char *expression)
+{
+
+	double *results, result;
+	int *flat_expression_indices, i, expression_start, expression_end, previous_expression_end, range, next_expression_length;
+	char *next_expression, *next_recursion_expression, *next_recursion_expression_chunk;
+
+	flat_expression_indices = flat_expressions(expression);
+
+	results = malloc(sizeof(double) * ((sizeof(flat_expression_indices) / sizeof(int)) / 2));
+
+	// allocate the max amount of memory the next expression
+	// it'll never be larger than the original string, so allocate
+	// the same amounf space the parent had
+	next_expression = malloc(sizeof(char) * strlen(expression)); 
+	next_recursion_expression = malloc(sizeof(char) * strlen(expression)); 
+	next_recursion_expression_chunk = malloc(sizeof(char) * strlen(expression)); 
+	next_expression_length = 0;
+
+	for(i = 0; i < (sizeof(flat_expression_indices)/sizeof(int))/2; i++) {
+
+		expression_start = flat_expression_indices[i*2];
+		expression_end = flat_expression_indices[i*2+1];
+
+		// printf("expression_start: %i", expression_start);
+		// printf("\n");
+		// printf("expression_end: %i", expression_end);
+		// printf("\n");
+
+		range = expression_end - expression_start;
+		if(range == strlen(expression)) {
+			result = calculator(expression);
+			return result;
+		} else {
+			if(i > 0) {
+				previous_expression_end = flat_expression_indices[i*2 - 1];
+			} else {
+				previous_expression_end = -1;
+			}
+			next_expression = substring(expression, expression_start+1, expression_end);
+
+			result = calculator(next_expression);
+
+			free(next_expression);
+			
+
+			next_recursion_expression_chunk = substring(expression, previous_expression_end+1, expression_start);
+			next_recursion_expression = assign_char_value(next_recursion_expression, next_expression_length, next_recursion_expression_chunk);
+			next_expression_length += strlen(next_recursion_expression_chunk);
+
+
+			// I shouldn't try and make the evaluated expressions actually back into strings.
+			// instead, I should register the float in an array and encode its index into the
+			// next recurssion expression string. Then, when parsing, I can treat the encoded
+			// values as values, then fetch the actual referenced values for doing maths
+			// some ideas... wrap the evaluated index in a series of chars that indicates 
+			// the integer within is a reference to an evaluated value. Could use {}
+			// next_recursion_expression = assign_char_value(next_recursion_expression, next_expression_length, );
+
+			printf("next_recursion_expression_chunk: %s", next_recursion_expression);
+			printf("\n");
+		}
+	}
+
+	// print_double_arr(results, (sizeof(flat_expression_indices)/sizeof(int))/2);
+
+	// REBUILD A NEW EXPRESSION WITHOUT THE FLAT EXPRESIONS REPLACED WITH THEIR EVALUATED RESULT
+
+	free(results);
+
+	free(flat_expression_indices);
+
+
+	return recursive_calculator(next_expression);
+}
+
 
 int main()
 {
@@ -282,7 +391,7 @@ int main()
 	stripped_input = whitespace_strip(input);
 	// perform input validation,
 	if(is_valid_expression(stripped_input) == 1) {
-		result = calculator(stripped_input);
+		result = recursive_calculator(stripped_input);
 	} else {
 		printf("INVALID EXPRESSION ENTERED");
 		printf("\n");
