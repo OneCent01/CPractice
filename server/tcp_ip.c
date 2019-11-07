@@ -6,7 +6,7 @@
 
 int main()
 {
-	int socket_connection = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int socket_connection = socket(AF_INET, SOCK_STREAM, 0);
 
 	if(socket_connection == -1) {
 		printf("FAIL: Socket creation\n");
@@ -17,7 +17,7 @@ int main()
 	
 	struct sockaddr_in server = {0};
 	
-	server.sin_addr.s_addr = INADDR_ANY;//inet_addr("192.168.51.14");
+	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_family = AF_INET;
 	server.sin_port = htons( 8090 );
 	
