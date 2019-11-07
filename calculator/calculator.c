@@ -439,8 +439,8 @@ int main()
 			printf("INVALID EXPRESSION ENTERED\n");
 		}
 	} else {
-		printf("INVALID CHARACTER ENTERED\n");
-		printf("Input must only consist of numbers and mathmatical operations (^, *, /, +, -)\n");
+		printf("INVALID EXPRESSION ENTERED\n");
+		printf("Input must only consist of numbers, parentheses, and mathmatical operations: (^, *, /, +, -)\n");
 	}
 
 	free(stripped_input);
