@@ -3,6 +3,7 @@
 #include<arpa/inet.h>
 #include<sys/socket.h> 
 #include<unistd.h>
+#define SA struct sockaddr
 
 int main()
 {
@@ -19,11 +20,11 @@ int main()
 	
 	struct sockaddr_in server;
 	
-	server.sin_addr.s_addr = htonl(INADDR_ANY);
+	server.sin_addr.s_addr =  inet_addr("192.168.51.14");// htonl(INADDR_ANY);
 	server.sin_family = AF_INET;
-	server.sin_port = htons( 8090 );
+	server.sin_port = htons(8081); 
 	
-	if(bind(socket_connection, (struct sockaddr *)&server, sizeof(server)) < 0) {
+	if(bind(socket_connection, (SA*)&server, sizeof(server)) < 0) {
 		printf("FAIL: Socket connection\n");
 		return 1;
 	} 
@@ -40,7 +41,7 @@ int main()
 
 	len = sizeof(server);
 
-	live_conn = accept(socket_connection, (struct sockaddr *)&server, (socklen_t*)&len);
+	live_conn = accept(socket_connection, (SA*)&server, (socklen_t*)&len);
 
 	if(live_conn < 0) {
 		printf("FAIL: Socket accepting connection :(\n");
