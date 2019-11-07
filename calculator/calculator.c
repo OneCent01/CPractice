@@ -2,6 +2,7 @@
 #include<string.h>
 #include<ctype.h>
 #include<stdio.h>
+#include<limits.h>
 
 int char_arr_includes(char *array, char value)
 {
@@ -46,18 +47,28 @@ double exponentiate(double num1, double exponent)
 double calculator(char *expression, double *evaluated) 
 {
 	double result;
-	char  *valid_operators, *operations, *next_int_string;
-	int i, operation_count, is_valid_operator, *operation_indices=NULL, substring_start, substring_end, *consumed_indices, next_value_offset, result_index, evaluated_index;
+	char  *valid_operators="^*/+-", *operations, *next_int_string;
+	int i, operation_count=0, is_valid_operator=0, *operation_indices=NULL, substring_start, substring_end, *consumed_indices, next_value_offset, result_index, evaluated_index;
 	double *numbers;
 
-	operation_count = 0;
-	valid_operators = "^*/+-";
 
-	operation_count = 0;
 	for(i = 0; i < strlen(expression); i++) {
+
 		is_valid_operator = char_arr_includes(valid_operators, expression[i]);
+
 		if(is_valid_operator == 1) {
-			operation_indices = realloc(operation_indices, sizeof(int) * i);
+			if(expression[i] == '-') {
+				// check whether this minus character represents an
+				// operation or a positive/negative sign
+
+				is_valid_operator = char_arr_includes(valid_operators, expression[i]);
+
+				if(is_valid_operator == 1) {
+					continue;
+				}
+			} 
+			is_valid_operator = char_arr_includes(valid_operators, expression[i-1]);
+			operation_indices = realloc(operation_indices, sizeof(int) * operation_count + 1);
 			operation_indices[operation_count] = i;
 			operation_count++;
 		} 
@@ -65,7 +76,7 @@ double calculator(char *expression, double *evaluated)
 
 	numbers = malloc(sizeof(double) * (operation_count+1));
 	operations = malloc(sizeof(char) * operation_count);
-	// // create the operations array from the operation_indices array:
+	// create the operations array from the operation_indices array:
 	for(i = 0; i <= operation_count; i++) {
 		// for each iteration, I want to do two things: 
 		// a) append the operation onto the operations array
@@ -76,8 +87,8 @@ double calculator(char *expression, double *evaluated)
 			substring_end = strlen(expression);
 		}
 
-		// // b) append the number to the left of the operation into the numbers array
-		// // slice out the string:
+		// b) append the number to the left of the operation into the numbers array
+		// slice out the string:
 
 		if(i == 0) {
 			substring_start = 0;
@@ -98,6 +109,7 @@ double calculator(char *expression, double *evaluated)
 
 		free(next_int_string);
 	}
+
 	// first go through and perform all the exponentials
 	consumed_indices = malloc(sizeof(int) * operation_count);
 	next_value_offset = 0;
@@ -135,48 +147,68 @@ double calculator(char *expression, double *evaluated)
 
 char *whitespace_strip(char *string) 
 {
-	char *stripped;
-	int i, stripped_count, whitespace_count, input_len;
-	input_len = strlen(string);
-	stripped_count = 0;
-	whitespace_count = 0;
-	for(i = 0; i < input_len; i++) {
-		if(string[i] == ' ') {
-			whitespace_count++;
-		}
-	}
-
-	stripped = malloc(sizeof(char) * (input_len - whitespace_count));
+	char *stripped=NULL;
+	int i, stripped_count=0, input_len=strlen(string), is_whitespace;
 
 	for(i = 0; i < input_len; i++) {
-		if(string[i] != ' ') {
+		is_whitespace = string[i] == ' ';
+		
+		if(is_whitespace == 0) {
+			stripped = realloc(stripped, sizeof(char) * (stripped_count+1));
 			stripped[stripped_count] = string[i];
 			stripped_count++;
 		}
 	}
-	stripped[(input_len - whitespace_count)] = '\0';
 
 	return stripped;
 }
 
-int is_valid_expression(char *string)
+int chars_contains(char *string, char *valid_chars)
 {
-	int is_valid=1, i, is_valid_special, is_valid_int;
-
-	char *type, *valid_special_chars, *valid_integer_chars;
-	valid_special_chars = "()^*/+-.";
-	valid_integer_chars = "0123456789";
+	int is_valid=1, i;
 
 	for(i = 0; i < strlen(string); i++) {
-		is_valid_int = char_arr_includes(valid_integer_chars, string[i]);
-		is_valid_special = char_arr_includes(valid_special_chars, string[i]);
+		is_valid = char_arr_includes(valid_chars, string[i]);
 		
-		if(is_valid_int != 1 && is_valid_special != 1) {
+		if(is_valid != 1) {
 			is_valid = 0;
 			break;
 		}
 	}
 
+	return is_valid;
+}
+
+int is_valid_expression(char *string)
+{
+	int is_valid=1, is_special, consecutive_specials=0, i;
+
+	if(strlen(string) < 3) {
+		return 0;
+	}
+
+	char *valid_special_chars="^*/+-.";
+
+	for(i = 0; i < strlen(string); i++) {
+		is_special = char_arr_includes(valid_special_chars, string[i]);
+		if(is_special == 1) {
+			consecutive_specials++;
+			if(consecutive_specials == 2) {
+				// two consecutive specials is valid if the second
+				// is a minus, indicating a negative number
+				if(string[i] != '-') {
+					is_valid = 0;
+					break;
+				} 
+			} else if(consecutive_specials > 2) {
+				is_valid = 0;
+				break;
+			}
+		} else {
+			consecutive_specials = 0;
+		}
+	}
+	
 	return is_valid;
 }
 
@@ -265,11 +297,12 @@ char *char_array_insert(char *base, char *insertion, int at)
 	return result;
 }
 
-double recursive_calculator(char *expression, double *results)
+double *recursive_calculator(char *expression, double *results)
 {
-
-	double result;
-	int *flat_expression_indices, i, expression_start, expression_end, previous_expression_end, range, next_expression_length=0;
+	double *result;
+	result = malloc(sizeof(double) * 2);
+	result[1] = 1;
+	int *flat_expression_indices, i, expression_start, expression_end, previous_expression_end, range, next_expression_length=0, previous_length;
 	char *next_expression, *next_recursion_expression, *next_recursion_expression_chunk, *next_recursion_expression_tail;
 
 	flat_expression_indices = flat_expressions(expression);
@@ -281,14 +314,20 @@ double recursive_calculator(char *expression, double *results)
 	next_recursion_expression = malloc(sizeof(char) * strlen(expression)); 
 	next_recursion_expression_chunk = malloc(sizeof(char) * strlen(expression)); 
 
+
 	for(i = 0; i < (sizeof(flat_expression_indices)/sizeof(int))/2; i++) {
+		
 
 		expression_start = flat_expression_indices[i*2];
 		expression_end = flat_expression_indices[i*2+1];
 
 		range = expression_end - expression_start;
 		if(range == strlen(expression)) {
-			result = calculator(expression, results);
+			if(is_valid_expression(expression) != 1) {
+				result[1] = 0;
+			} else {
+				result[0] = calculator(expression, results);
+			}
 			return result;
 		} else {
 			if(i > 0) {
@@ -298,11 +337,17 @@ double recursive_calculator(char *expression, double *results)
 			}
 			next_expression = substring(expression, expression_start+1, expression_end);
 
-			result = calculator(next_expression, results);
+			if(is_valid_expression(next_expression) != 1) {
+				result[1] = 0;
+				return result;
+			}
+
+			result[0] = calculator(next_expression, results);
+
 
 			results = realloc(results, sizeof(double) * i);
 
-			results[i] = result;
+			results[i] = result[0];
 
 			free(next_expression);
 			
@@ -367,6 +412,7 @@ double recursive_calculator(char *expression, double *results)
 
 	free(next_recursion_expression_chunk);
 	free(flat_expression_indices);
+	free(result);
 
 	return recursive_calculator(next_recursion_expression, results);
 }
@@ -374,8 +420,8 @@ double recursive_calculator(char *expression, double *results)
 
 int main()
 {
-	char *input, *stripped_input;
-	double result, *evaluated=NULL;
+	char *input, *stripped_input, *valid_chars="()^*/+-.0123456789";
+	double result, *results, *evaluated=NULL;
 
 	printf("Enter operation: ");
 	gets(input);
@@ -383,17 +429,23 @@ int main()
 	// remove any spaces,
 	stripped_input = whitespace_strip(input);
 	// perform input validation,
-	if(is_valid_expression(stripped_input) == 1) {
-		result = recursive_calculator(stripped_input, evaluated);
-		printf("Result: %f", result);
-		printf("\n");
+	if(chars_contains(stripped_input, valid_chars) == 1) {
+		results = recursive_calculator(stripped_input, evaluated);
+		if(results[1] == 1) {
+			result = results[0];
+			printf("%f", result);
+			printf("\n");
+		} else {
+			printf("INVALID EXPRESSION ENTERED\n");
+		}
 	} else {
-		printf("INVALID EXPRESSION ENTERED\n");
-		printf("Input must only consist of digits and mathmatical operations [^, *, /, +, -]\n");
+		printf("INVALID CHARACTER ENTERED\n");
+		printf("Input must only consist of numbers and mathmatical operations (^, *, /, +, -)\n");
 	}
 
 	free(stripped_input);
 	free(evaluated);
+	free(results);
 
 	return 0;
 }
