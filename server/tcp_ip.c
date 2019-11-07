@@ -20,7 +20,7 @@ int main()
 	
 	struct sockaddr_in server;
 	
-	server.sin_addr.s_addr =  inet_addr("192.168.51.14");// htonl(INADDR_ANY);
+	server.sin_addr.s_addr = htonl(INADDR_ANY);
 	server.sin_family = AF_INET;
 	server.sin_port = htons(8081); 
 	
