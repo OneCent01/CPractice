@@ -23,6 +23,49 @@ void add_to_list(char ***list_names, char *new_list, int *lists_count)
 	return;
 }
 
+// colors: red, green, yellow, blue, cyan, magenta, reset
+// modifiers: 
+//   is_bold: integer, regular, bold
+// void format_print_color(char * color, int is_bold)
+// {
+// 	char *color_strings[7];
+// 	color_strings[0] = "red";
+// 	color_strings[1] = "green";
+// 	color_strings[2] = "yellow";
+// 	color_strings[3] = "blue";
+// 	color_strings[4] = "cyan";
+// 	color_strings[5] = "magenta";
+// 	color_strings[6] = "reset";
+// 	char *color_code[7];
+// 	color_code[0] = "[0;31m";
+// 	color_code[1] = "[0;32m";
+// 	color_code[2] = "[0;33m";
+// 	color_code[3] = "[0;34m";
+// 	color_code[4] = "[0;35m";
+// 	color_code[5] = "[0;36m";
+// 	color_code[6] = "[0;0m";
+// 	char *selected_color_string="\033";
+// 	int i, selected_color_index;
+
+// 	for(i = 0; i < sizeof(color_strings) / sizeof(char*); i++) {
+// 		if(strcpy(color, color_strings[i]) == 0) {
+// 			selected_color_index = i;
+// 			break;
+// 		}
+// 	}
+
+// 	for(i = 0; i < strlen(selected_color_string); i++) {
+// 		printf("%c",selected_color_string[i]);
+// 		printf("\n");
+// 	}
+
+
+
+// 	// printf("\033");
+
+// 	return;
+// }
+
 void print_bookend(int len) 
 {
 	int i;
@@ -54,6 +97,7 @@ void print_box_row(int max_len, char *text, int text_len)
 	print_text[max_len+1] = '\0';
 	printf("%s", print_text);
 	printf("\n");
+	print_bookend(max_len);
 	return;
 }
 
@@ -66,10 +110,20 @@ void print_code_block()
 	return;
 }
 
-void todo_print_view(int view, char **lists, int list_count)
+void todo_print_view(int view, int mode, char **lists, int list_count)
 {
 	int max_len=30, i;
+	char *top_row_text = "TODO TEXT APP";
+	char *mode_select_string = " 0 | 1 | 2 ";
+
 	print_bookend(max_len);
+
+	print_box_row(
+		max_len, 
+		top_row_text, 
+		(strlen(top_row_text) * sizeof(char))
+	);
+
 	if(view == 0) {
 		for(i = 0; i < list_count; i++) {
 			print_box_row(
@@ -77,9 +131,36 @@ void todo_print_view(int view, char **lists, int list_count)
 				lists[i], 
 				(strlen(lists[i]) * sizeof(char))
 			);
-			print_bookend(max_len);
 		}
 	}
+
+
+	// if(view == 0) {
+	// 	print_box_row(
+	// 		max_len, 
+	// 		mode_select_string, 
+	// 		(strlen(mode_select_string) * sizeof(char))
+	// 	);
+	// } else if(view == 1) {
+	// 	if(mode == 0) {
+	// 		if(view == 0) {
+	// 			for(i = 0; i < list_count; i++) {
+	// 				print_box_row(
+	// 					max_len, 
+	// 					lists[i], 
+	// 					(strlen(lists[i]) * sizeof(char))
+	// 				);
+	// 			}
+	// 		}
+
+	// 	} else if(mode == 1) {
+
+	// 	} else if(mode == 2) {
+
+	// 	}
+
+	// }
+
 	return;
 }
 
@@ -93,28 +174,42 @@ int process_user_input(int view, char *input, char ***list_names, int *lists_cou
 	return 0;
 }
 
-void format_print_color(char * color, int is_bold)
-{
 
-	return;
-}
 
 void todo_app()
 {
-	int lists_count=0, view=0, i;
-	char **list_names=malloc(sizeof(char*)), 
-	*new_list="BINGBINGWAHOO", 
-	*new_list_1="plingpling",
-	*input;
+	int lists_count=0, view=1, mode=0, i;
+	char **list_names=malloc(sizeof(char*)), input[30], char_input;
 
-	add_to_list(&list_names, new_list, &lists_count);
-	add_to_list(&list_names, new_list_1, &lists_count);
-
-	while(view < 3) {
-		todo_print_view(view, list_names, lists_count);
+	// views: mode select and mode view
+	// views: 
+	// 	0. select
+	// 	1. mode
+	//  2. exit
+	// modes:
+	// 	0. add
+	//  1. delete
+	//  2. udate
+	while(view < 2) {
+		todo_print_view(view, mode, list_names, lists_count);
 
 		printf("Enter new list item: ");
+
+		// control flow skeleton for view/mode: 
+
+		// if(view == 0) {
+
+		// } else if(view == 1) {
+		// 	if(mode == 0) {
+
+		// 	} else if(mode == 1) {
+
+		// 	} else if(mode == 2) {
+
+		// 	}
+		// }
 		gets(input);
+
 		view = process_user_input(
 			view, 
 			input,
@@ -126,13 +221,13 @@ void todo_app()
 	for(i = 0; i < lists_count; i++) {
 		free(list_names[i]);
 	}
-
 	free(list_names);
 	return;
 }
 
 int main()
 {
+	// format_print_color("green", 1);
 	todo_app();
 	return 0;
 }
