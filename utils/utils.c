@@ -92,3 +92,22 @@ char *assign_char_value(char *base, int index, char *value)
 	}
 	return base;
 }
+
+// takes two args: a pointer to an integer to mutate, 
+// and an integer to mutate it by
+void mutate_int(int *integer, int by) 
+{
+	(*integer) += by;
+	return;
+}
+
+// acceots three args: string array pointer to mutate, the string to inject,
+// and the index at wich it should be injected
+void mutate_string_array(char ***string_array, char *insertion, int at) 
+{
+	printf("insertion: %s", insertion);
+	printf("\n");
+	*string_array[at] = malloc(sizeof(insertion) * sizeof(char));
+	strcpy(*string_array[0], insertion);
+	return;
+}
