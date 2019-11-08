@@ -37,6 +37,40 @@ void print_double_arr(double * array, int length)
 	printf("\n");
 }
 
+void print_bookend(int len) 
+{
+	int i;
+	char text[len+1];
+	text[0] = '*';
+	for(i = 1; i < len; i++) {
+		text[i] = '-';
+	}
+	text[len] = '*';
+	text[len+1] = '\0';
+	printf("%s", text);
+	printf("\n");
+	return;
+}
+
+void print_box_row(int max_len, char *text, int text_len)
+{
+	char print_text[max_len+1];
+	int i;
+	print_text[0] = '|';
+	for(i = 1; i < max_len; i++) {
+		if(i-1 < text_len) {
+			print_text[i] = text[i-1];
+		} else {
+			print_text[i] = ' ';
+		}
+	}
+	print_text[max_len] = '|';
+	print_text[max_len+1] = '\0';
+	printf("%s", print_text);
+	printf("\n");
+	return;
+}
+
 // The most interoperable and safe way to convert an
 // integer into a string is by using the formatting
 // utilities utilized by the C's native print module.
