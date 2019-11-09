@@ -222,13 +222,13 @@ void todo_app()
 
 int main()
 {
-	char *input;
-	while(1) {
-		printf("Choose your color: ");
-		gets(input);
+	// char *input;
+	// while(1) {
+	// 	printf("Choose your color: ");
+	// 	gets(input);
 
-		format_print_color(input, 0);
-	}
-	// todo_app();
+	// 	format_print_color(input, 0);
+	// }
+	todo_app();
 	return 0;
 }

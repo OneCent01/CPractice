@@ -11,7 +11,7 @@ void print_char_arr(char * array, int length)
 	printf("\n");
 }
 
-void print_int_arr(int * array, int length)
+void print_int(int * array, int length)
 {
 	printf("[");
 	for(int i = 0; i < length; i++) {
@@ -22,6 +22,21 @@ void print_int_arr(int * array, int length)
 	} 
 	printf("]");
 	printf("\n");
+}
+
+void print_int_array(int **array)
+{
+	printf("[");
+	int size = sizeof(array) / sizeof(int*), i=0;
+	for(int i = 0; i < size; i++) {
+	    printf("%i", array[i]);
+	    if(i < length - 1) {
+	    	printf(", ");
+	    }
+	} 
+	printf("]");
+	printf("\n");
+
 }
 
 void print_double_arr(double * array, int length)
