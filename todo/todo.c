@@ -26,45 +26,51 @@ void add_to_list(char ***list_names, char *new_list, int *lists_count)
 // colors: red, green, yellow, blue, cyan, magenta, reset
 // modifiers: 
 //   is_bold: integer, regular, bold
-// void format_print_color(char * color, int is_bold)
-// {
-// 	char *color_strings[7];
-// 	color_strings[0] = "red";
-// 	color_strings[1] = "green";
-// 	color_strings[2] = "yellow";
-// 	color_strings[3] = "blue";
-// 	color_strings[4] = "cyan";
-// 	color_strings[5] = "magenta";
-// 	color_strings[6] = "reset";
-// 	char *color_code[7];
-// 	color_code[0] = "[0;31m";
-// 	color_code[1] = "[0;32m";
-// 	color_code[2] = "[0;33m";
-// 	color_code[3] = "[0;34m";
-// 	color_code[4] = "[0;35m";
-// 	color_code[5] = "[0;36m";
-// 	color_code[6] = "[0;0m";
-// 	char *selected_color_string="\033";
-// 	int i, selected_color_index;
+void format_print_color(char * color, int is_bold)
+{
+	char **color_strings;
+	color_strings = malloc(sizeof(char*) * 7);
+	color_strings[0] = "red";
+	color_strings[1] = "green";
+	color_strings[2] = "yellow";
+	color_strings[3] = "blue";
+	color_strings[4] = "magenta";
+	color_strings[5] = "cyan";
+	color_strings[6] = "default";
+	char **color_code;
+	color_code = malloc(sizeof(char*) * 7);
+	if(is_bold) {
+		color_code[0] = "\033[1;31m";
+		color_code[1] = "\033[1;32m";
+		color_code[2] = "\033[1;33m";
+		color_code[3] = "\033[1;34m";
+		color_code[4] = "\033[1;35m";
+		color_code[5] = "\033[1;36m";
+	} else {
+		color_code[0] = "\033[0;31m";
+		color_code[1] = "\033[0;32m";
+		color_code[2] = "\033[0;33m";
+		color_code[3] = "\033[0;34m";
+		color_code[4] = "\033[0;35m";
+		color_code[5] = "\033[0;36m";
+	}
+	color_code[6] = "\033[0;0m";
+	char *selected_color_string;
+	int i, selected_color_index=-1;
 
-// 	for(i = 0; i < sizeof(color_strings) / sizeof(char*); i++) {
-// 		if(strcpy(color, color_strings[i]) == 0) {
-// 			selected_color_index = i;
-// 			break;
-// 		}
-// 	}
+	for(i = 0; i < (sizeof(color_strings)); i++) {
+		if(strcmp(color, color_strings[i]) == 0) {
+			selected_color_index = i;
+			break;
+		}
+	}
 
-// 	for(i = 0; i < strlen(selected_color_string); i++) {
-// 		printf("%c",selected_color_string[i]);
-// 		printf("\n");
-// 	}
+	printf("%s", color_code[selected_color_index]);
 
+	free(color_strings);
 
-
-// 	// printf("\033");
-
-// 	return;
-// }
+	return;
+}
 
 void print_bookend(int len) 
 {
@@ -97,15 +103,6 @@ void print_box_row(int max_len, char *text, int text_len)
 	print_text[max_len+1] = '\0';
 	printf("%s", print_text);
 	printf("\n");
-	print_bookend(max_len);
-	return;
-}
-
-void print_code_block()
-{
-	int max_len=10;
-	print_bookend(max_len);
-	print_box_row(max_len, "lordy", 5);
 	print_bookend(max_len);
 	return;
 }
@@ -174,8 +171,6 @@ int process_user_input(int view, char *input, char ***list_names, int *lists_cou
 	return 0;
 }
 
-
-
 void todo_app()
 {
 	int lists_count=0, view=1, mode=0, i;
@@ -189,7 +184,7 @@ void todo_app()
 	// modes:
 	// 	0. add
 	//  1. delete
-	//  2. udate
+	//  2. update
 	while(view < 2) {
 		todo_print_view(view, mode, list_names, lists_count);
 
@@ -227,7 +222,13 @@ void todo_app()
 
 int main()
 {
-	// format_print_color("green", 1);
-	todo_app();
+	char *input;
+	while(1) {
+		printf("Choose your color: ");
+		gets(input);
+
+		format_print_color(input, 0);
+	}
+	// todo_app();
 	return 0;
 }

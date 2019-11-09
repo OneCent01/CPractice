@@ -71,6 +71,68 @@ void print_box_row(int max_len, char *text, int text_len)
 	return;
 }
 
+// colors: red, green, yellow, blue, cyan, magenta, reset
+// modifiers: 
+//   is_bold: integer, regular, bold
+void format_print_color(char * color, int is_bold)
+{
+	char **color_strings;
+	color_strings = malloc(sizeof(char*) * 7);
+	color_strings[0] = "red";
+	color_strings[1] = "green";
+	color_strings[2] = "yellow";
+	color_strings[3] = "blue";
+	color_strings[4] = "cyan";
+	color_strings[5] = "magenta";
+	color_strings[6] = "reset";
+	char **color_code;
+	color_code = malloc(sizeof(char*) * 7);
+	if(is_bold) {
+		color_code[0] = "\033[1;31m";
+		color_code[1] = "\033[1;32m";
+		color_code[2] = "\033[1;33m";
+		color_code[3] = "\033[1;34m";
+		color_code[4] = "\033[1;35m";
+		color_code[5] = "\033[1;36m";
+	} else {
+		color_code[0] = "\033[0;31m";
+		color_code[1] = "\033[0;32m";
+		color_code[2] = "\033[0;33m";
+		color_code[3] = "\033[0;34m";
+		color_code[4] = "\033[0;35m";
+		color_code[5] = "\033[0;36m";
+	}
+	color_code[6] = "\033[0;0m";
+	char *selected_color_string;
+	int i, selected_color_index=-1;
+
+	for(i = 0; i < (sizeof(color_strings)); i++) {
+		if(strcmp(color, color_strings[i]) == 0) {
+			selected_color_index = i;
+			break;
+		}
+	}
+
+	printf("%s", color_code[selected_color_index]);
+
+	free(color_strings);
+
+	return;
+}
+
+char * substring(char *string, int start, int end)
+{
+	int i, range;
+	range = end - start;
+	char *result;
+	result = malloc(sizeof(result) * range);
+	for(i = start; i < end; i++) {
+		result[i - start] = string[i];
+	}
+	result[range] = '\0';
+	return result;
+}
+
 // The most interoperable and safe way to convert an
 // integer into a string is by using the formatting
 // utilities utilized by the C's native print module.
@@ -135,7 +197,7 @@ void mutate_int(int *integer, int by)
 	return;
 }
 
-// acceots three args: string array pointer to mutate, the string to inject,
+// accepts three args: pointer to target string array, the string to inject,
 // and the index at wich it should be injected
 void mutate_string_array(char ***string_array, char *insertion, int at) 
 {
