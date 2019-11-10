@@ -350,6 +350,40 @@ int board_has_n_sequential_chars(char *game_state, char target_char, int sequenc
 		y++;
 	}
 
+	y = 0;
+
+	while(y < 3 && x < 3) {
+		search_index = x + (3 * y);
+		if(game_state[search_index] == target_char) {
+			sequential++;
+		}
+		x++;
+		y++;
+	}
+
+	if(sequential == 3) {
+		won = 1;
+		return won;
+	}
+
+	sequential = 0;
+	x = 2;
+	y = 0;
+
+	while(y < 3 && x > -1) {
+		search_index = x + (3 * y);
+		if(game_state[search_index] == target_char) {
+			sequential++;
+		}
+		y++;
+		x--;
+	}
+
+	if(sequential == 3) {
+		won = 1;
+		return won;
+	}
+
  	return won;
 }
 
