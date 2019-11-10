@@ -235,7 +235,6 @@ char get_raw()
 
 void process_input(char input, int *turn, char *player_chars, int *x, int *y, char **game_state, int *board_index, int spaces, int *show_controls)
 {
-
 	if(input == 'w' && (*y) > 0) {
 		// up
 		(*y)--;
