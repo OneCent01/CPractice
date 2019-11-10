@@ -139,8 +139,6 @@ char *assign_char_value(char *base, int index, char value, int size)
 
 void print_box_row(int max_len, char *text, int text_len, int selected)
 {
-	// printf("text: %s", text);
-	// printf("\n");
 	char print_text[max_len+1], **colors=NULL;
 	int i, colors_count=0, selected_i=-1, color_change_indices_count=0, *color_change_indices=NULL;
 	print_text[0] = '|';
@@ -167,8 +165,6 @@ void print_box_row(int max_len, char *text, int text_len, int selected)
 			colors = realloc(colors, (colors_count+1) * sizeof(char*));
 			mutate_string_array(&colors, "default", colors_count);
 			colors_count++;
-
-
 		}
 		print_text[i] = text[i-1];
 	}
@@ -237,165 +233,202 @@ char get_raw()
 	return c;
 }
 
-void update_positions(char input, int *x, int *y, int *board_index)
+void process_input(char input, int *turn, char *player_chars, int *x, int *y, char **game_state, int *board_index, int spaces)
 {
-	if(input == 'w') {
+
+	if(input == 'w' && (*y) > 0) {
 		// up
-		if((*y) > 0) {
-			(*y)--;
-			(*board_index) -= 3;
-		}
-	} else if(input == 's') {
+		(*y)--;
+		(*board_index) -= 3;
+	} else if(input == 's' && (*y) < 2) {
 		// down
-		if((*y) < 2) {
-			(*y)++;
-			(*board_index) += 3;
-		}
-	} else if(input == 'a') {
+		(*y)++;
+		(*board_index) += 3;
+	} else if(input == 'a' && (*x) > 0) {
 		// left
-		if((*x) > 0) {
-			(*x)--;
-			(*board_index)--;
-		}
-	} else if(input == 'd') {
+		(*x)--;
+		(*board_index)--;
+	} else if(input == 'd' && (*x) < 2) {
 		// right
-		if((*x) < 2) {
-			(*x)++;
-			(*board_index)++;
-		}
+		(*x)++;
+		(*board_index)++;
 	} else if(input == 'q') {
 		exit(0);
-	} 
+	} else if(input == 'e' && (*game_state)[*board_index] == '-') {
+		// find position of currently selected space in the board string
+		// game_state = assign_char_value(game_state, (*board_index), player_chars[turn]);
+		*game_state = assign_char_value(*game_state, *board_index, player_chars[(*turn)], spaces);
+		// // then change to the other players turn
+		(*x) = 0;
+		(*y) = 0;
+		(*board_index) = 0;
+		if(*turn == 1) {
+			(*turn) = 0;
+		} else {
+			(*turn) = 1;
+		}
+	}
 
 	return;
 }
 
+void print_tictactoe_row(int x, int y, int board_size, char *game_state, int row)
+{
+	int row_x;
+	if(y == row) {
+		row_x = x;
+	} else {
+		row_x = -1;
+	}
+	
+	print_box_row(
+		board_size, 
+		string_insert_at_every_other_index(
+			substring(
+				game_state, 
+				row*3, 
+				(row*3)+3
+			), 
+			'|'
+		), 
+		board_size, 
+		row_x
+	);
+
+	return;
+}
+
+void print_tictactoe_board(int x, int y, int board_size, char *game_state)
+{
+	format_print_color("default", 0);
+	system("clear");
+	
+	print_bookend(board_size);
+	print_tictactoe_row(x, y, board_size, game_state, 0);
+	print_tictactoe_row(x, y, board_size, game_state, 1);
+	print_tictactoe_row(x, y, board_size, game_state, 2);
+	return;
+}
+
+int board_has_n_sequential_chars(char *game_state, char target_char, int sequence)
+{
+	int won=-1, x=0, y=0, sequential=0, search_index;
+	while(x < 3) {
+		while(y < 3) {
+			search_index = x + (3 * y);
+			if(game_state[search_index] == target_char) {
+				sequential++;
+			}
+			y++;
+		}
+		if(sequential == 3) {
+			won = 1;
+			return won;
+		}
+		sequential = 0;
+		y = 0;
+		x++;
+	}
+
+	x = 0;
+	while(y < 3) {
+		while(x < 3) {
+			search_index = x + (3 * y);
+			if(game_state[search_index] == target_char) {
+				sequential++;
+			}
+			x++;
+		}
+		if(sequential == 3) {
+			won = 1;
+			return won;
+		}
+		sequential = 0;
+		x = 0;
+		y++;
+	}
+
+ 	return won;
+}
+
+int board_has_win(char *game_state, char *player_chars)
+{
+	int won=-1, check_player_win=0, winner=-1;
+
+	winner = board_has_n_sequential_chars(
+		game_state, 
+		player_chars[check_player_win], 
+		3
+	);
+	if(winner == 1) {
+		won = check_player_win;
+		return won;
+	}
+
+	check_player_win++;
+	winner = board_has_n_sequential_chars(
+		game_state, 
+		player_chars[check_player_win], 
+		3
+	);
+	if(winner == 1) {
+		won = check_player_win;
+	}
+
+	return won;
+}
+
 int tictactoe_text()
 {
-	char input, *game_state="---------\0";
-	int turn=0, x=0, y=0, board_size=6, index_to_change=0, spaces=9;
-
+	char input, *game_state="---------\0", *player_chars="xo";
+	int turn=0, winner=-1, x=0, y=0, board_size=6, index_to_change=0, board_spaces=9, row_x=-1;
 
 	while(1) {
-		format_print_color("default", 0);
-		system("clear");
 
-		print_bookend(board_size);
-		if(y == 0) {
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						0, 
-						3
-					), 
-					'|'
-				), 
-				board_size, 
-				x
-			);
-		} else {
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						0, 
-						3
-					), 
-					'|'
-				), 
-				board_size, 
-				-1
-			);
-		}
-		if(y == 1){
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						3, 
-						6
-					), 
-					'|'
-				), 
-				board_size, 
-				x
-			);
-		} else {
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						3, 
-						6
-					), 
-					'|'
-				), 
-				board_size, 
-				-1
-			);
-		}
+		// print the board
+		print_tictactoe_board(x, y, board_size, game_state);
 
-		if(y == 2){
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						6, 
-						9
-					), 
-					'|'
-				), 
-				board_size, 
-				x
-			);
-		} else {
-			print_box_row(
-				board_size, 
-				string_insert_at_every_other_index(
-					substring(
-						game_state, 
-						6, 
-						9
-					), 
-					'|'
-				), 
-				board_size, 
-				-1
-			);
-		}
+		winner = board_has_win(game_state, player_chars);
 
-		input = get_raw();
+		if(winner != -1) {
+			printf("PLAYER ");
+			printf("%c", player_chars[winner]);
+			printf(" WINS!!!\n");
+			printf("Play again? \n(y or n): ");
 
-		update_positions(input, &x, &y, &index_to_change);
+			input = get_raw();
 
-		char *player_chars = "xo";
-
-		if(input == 'e') {
-			// change the board at the current spot if possible
-			printf("\n");
-			if(game_state[index_to_change] == '-') {
-				// find position of currently selected space in the board string
-				// game_state = assign_char_value(game_state, index_to_change, player_chars[turn]);
-				game_state = assign_char_value(game_state, index_to_change, player_chars[turn], spaces);
-				// // then change to the other players turn
-				if(turn == 1) {
-					turn = 0;
-				} else {
-					turn = 1;
-				}
-
+			if(input == 'y') {
+				game_state = "---------\0";
+				turn = 0;
+				winner = -1; 
+				x = 0; 
+				y = 0;
+				index_to_change = 0;
+				row_x = -1;
+				continue;
+			} else {
+				break;
 			}
 		}
+		// ask for the next move
+		input = get_raw();
+
+		// interpret the input, update the state
+		process_input(
+			input, 
+			&turn, 
+			player_chars,
+			&x, 
+			&y, 
+			&game_state, 
+			&index_to_change, 
+			board_spaces
+		);
+		// repeat!
 	}
 
 	free(game_state);
-
 	return 0;
 }
 
