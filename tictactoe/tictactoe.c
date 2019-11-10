@@ -233,7 +233,7 @@ char get_raw()
 	return c;
 }
 
-void process_input(char input, int *turn, char *player_chars, int *x, int *y, char **game_state, int *board_index, int spaces)
+void process_input(char input, int *turn, char *player_chars, int *x, int *y, char **game_state, int *board_index, int spaces, int *show_controls)
 {
 
 	if(input == 'w' && (*y) > 0) {
@@ -267,6 +267,8 @@ void process_input(char input, int *turn, char *player_chars, int *x, int *y, ch
 		} else {
 			(*turn) = 1;
 		}
+	} else if(input == 'h') {
+		(*show_controls) = 1;
 	}
 
 	return;
@@ -381,12 +383,24 @@ int board_has_win(char *game_state, char *player_chars)
 int tictactoe_text()
 {
 	char input, *game_state="---------\0", *player_chars="xo";
-	int turn=0, winner=-1, x=0, y=0, board_size=6, index_to_change=0, board_spaces=9, row_x=-1;
+	int first_iter=1, show_controls=0, turn=0, winner=-1, x=0, y=0, board_size=6, index_to_change=0, board_spaces=9, row_x=-1;
 
 	while(1) {
 
 		// print the board
 		print_tictactoe_board(x, y, board_size, game_state);
+
+		if(first_iter == 1) {
+			printf("(type h for controls)\n");
+			first_iter = 0;
+		}
+
+		if(show_controls == 1) {
+			printf("Move to a new space with WASD\n");
+			printf("Select a space with e\n");
+			printf("Quit program with q\n");
+			show_controls = 0;
+		}
 
 		winner = board_has_win(game_state, player_chars);
 
@@ -423,7 +437,8 @@ int tictactoe_text()
 			&y, 
 			&game_state, 
 			&index_to_change, 
-			board_spaces
+			board_spaces,
+			&show_controls
 		);
 		// repeat!
 	}
