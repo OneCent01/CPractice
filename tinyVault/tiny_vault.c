@@ -35,6 +35,16 @@ void finish(struct app_state *state)
 	exit(0);
 }
 
+void write_file(char *path, char *data)
+{
+	
+}
+
+void read_file(char *path)
+{
+	
+}
+
 char read_input_char(struct app_state *state)
 {
 	char c;
@@ -466,7 +476,7 @@ int main()
 		// init color mode:
 		start_color();
 
-		// create the colorpairs color.. coloring:
+		// create the colorpairs for.. coloring:
 		create_colorpairs();
 
 		while(1) {
