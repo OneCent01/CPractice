@@ -448,8 +448,8 @@ void create_colorpairs()
 
 int main()
 {
-    struct app_state state = {0, 0, 0, 1, 0, 0};
-    char **db_names=NULL;
+	struct app_state state = {0, 0, 0, 1, 0, 0};
+	char **db_names=NULL;
 
     /*
     APP VIEWS
@@ -467,22 +467,21 @@ int main()
 		4: record
     */
 
-    initscr();
+	initscr();
 
-    if(has_colors() == FALSE)
-	{	
+	if(has_colors() == FALSE) {	
 		printf("Your terminal does not support color\n");
 	} else {
 		// init color mode:
 		start_color();
-
+		
 		// create the colorpairs for.. coloring:
 		create_colorpairs();
-
+		
 		while(1) {
 			// clear and replaing the screen based on the state:
 			update_screen(state);
-
+			
 			// listen for input:
 			if(state.select_db_step == 0 || (state.view == 2 && state.auth_step == 0)) {
 				// process user input string and modify the state accordingly:
@@ -490,17 +489,17 @@ int main()
 					read_input_str(),//<--listen for string input
 					&state
 				);
-
+				
 			} else {
 				// process the user input and modify the state accordingly: 
 				handle_char_input(
 					read_input_char(&state), //<--listen for character input:
 					&state
 				);
-
+				
 			}
 		}
 	}
-
+	
 	finish(&state);
 }

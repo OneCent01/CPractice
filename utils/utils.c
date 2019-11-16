@@ -192,24 +192,14 @@ char *char_array_insert(char *base, char *insertion, int at)
 	return result;
 }
 
-// overwrites the values in a character array with a given string
-// starts at the indicated location. Returns a the modified base
-// string without changing it's size. 
-char *assign_char_value(char *base, int index, char *value) 
+// overwrites the values contained in a string with antoher string.
+// starts at the indicated location. 
+void assign_string(char *base, int index, char *value) 
 {
 	int i;
 	for(i = 0; i < strlen(value); i++) {
 		base[index+i] = value[i];
 	}
-	return base;
-}
-
-// takes two args: a pointer to an integer to mutate, 
-// and an integer to mutate it by
-void mutate_int(int *integer, int by) 
-{
-	(*integer) += by;
-	return;
 }
 
 // accepts three args: pointer to target string array, the string to inject,
